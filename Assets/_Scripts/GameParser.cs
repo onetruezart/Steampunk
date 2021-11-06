@@ -153,6 +153,8 @@ public class GameParser : MonoBehaviour
             page.buttons.Add(pageButton);
         }
 
+        page.buttons.Shuffle();
+
     }
 
     private void FindBackgroundInfo(string text)
@@ -225,7 +227,6 @@ public struct Page
     public string musicName;
 
     public List<PageButton> buttons;
-
 }
 
 public struct PageButton

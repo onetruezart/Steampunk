@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public class MainMenuUI : MonoBehaviour
 {
     [SerializeField] private Button _continueButton;
+    [SerializeField] private GameObject _soundOnBtn, _soundOffBtn;
 
     private void Start()
     {
@@ -14,7 +15,37 @@ public class MainMenuUI : MonoBehaviour
             _continueButton.interactable = true;
         else
             _continueButton.interactable = false;
+
+        if (PlayerPrefs.HasKey(GameManager.MusicValueSaveId))
+        {
+            if (PlayerPrefs.GetInt(GameManager.MusicValueSaveId) == 1)
+                SoundOn();
+            else
+                SoundOff();
+        }
+        else
+        {
+            SoundOn();
+        }
     }
+
+    public void SoundOn()
+    {
+        _soundOffBtn.SetActive(false);
+        _soundOnBtn.SetActive(true);
+
+        PlayerPrefs.SetInt(GameManager.MusicValueSaveId, 1);
+
+    }
+
+    public void  SoundOff()
+    {
+        _soundOffBtn.SetActive(true);
+        _soundOnBtn.SetActive(false);
+
+        PlayerPrefs.SetInt(GameManager.MusicValueSaveId, 0);
+    }
+
 
     public void StartNewGame()
     {

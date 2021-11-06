@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     public const string FinalPageId = "final";
 
     public const string ProgressSaveId = "LastPage";
+    public const string MusicValueSaveId = "MusicValue";
 
     public const int PlaySceneId = 1;
     public const int MainMenuSceneId = 0;
