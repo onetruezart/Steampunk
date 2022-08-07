@@ -13,18 +13,17 @@ public class AudioController : MonoBehaviour
         if (instance == null)
             instance = this;
 
+        UpdateSoundState();
+    }
 
-        if (PlayerPrefs.HasKey(GameManager.MusicValueSaveId))
-        {
-            if (PlayerPrefs.GetInt(GameManager.MusicValueSaveId) == 1)
-                backgroundMusicAudioSourse.gameObject.SetActive(true);
-            else
-                backgroundMusicAudioSourse.gameObject.SetActive(false);
-        }
-        else
-        {
-            backgroundMusicAudioSourse.gameObject.SetActive(true);
-        }
+    private void OnEnable()
+    {
+        MainMenuUI.OnAudioStateChanged += UpdateSoundState;
+    }
+
+    private void OnDisable()
+    {
+        MainMenuUI.OnAudioStateChanged -= UpdateSoundState;
     }
 
     public void SetMusic(string name)
@@ -38,4 +37,18 @@ public class AudioController : MonoBehaviour
         }
     }
 
+    private void UpdateSoundState()
+    {
+        if (PlayerPrefs.HasKey(GameManager.MusicValueSaveId))
+        {
+            if (PlayerPrefs.GetInt(GameManager.MusicValueSaveId) == 1)
+                backgroundMusicAudioSourse.gameObject.SetActive(true);
+            else
+                backgroundMusicAudioSourse.gameObject.SetActive(false);
+        }
+        else
+        {
+            backgroundMusicAudioSourse.gameObject.SetActive(true);
+        }
+    }
 }

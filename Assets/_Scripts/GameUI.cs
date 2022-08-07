@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System;
+using UnityEngine.Events;
 
 public class GameUI : MonoBehaviour
 {
@@ -25,29 +27,14 @@ public class GameUI : MonoBehaviour
 
     public void LoadPage(Page page)
     {
-
         ClearPage();
 
         SetText(page);
-
-        if (page.buttons.Count == 0)
-        {
-            CreateMainMenuButton();
-        }
-        else
-        {
-            foreach (PageButton pageButton in page.buttons)
-            {
-                CreateButton(pageButton);
-            }
-        }
-
+        GenerateButtons(page);
         if (page.bgName != null)
             SetBG(page.bgName);
 
         StartCoroutine(RebuildLayout());
-
-        // _contentHolder.SetActive(false);
     }
 
     private void SetText(Page page)
@@ -63,10 +50,10 @@ public class GameUI : MonoBehaviour
         if (bg != null)
             _bgImage.sprite = bg;
 
-       NormalizeBgSize();
+       SetBgSize();
     }
 
-    private void NormalizeBgSize()
+    private void SetBgSize()
     {
         _bgImage.SetNativeSize();
 
@@ -88,86 +75,66 @@ public class GameUI : MonoBehaviour
     {
         _contentHolder.GetComponent<CanvasGroup>().alpha = 0;
         yield return null;
-        //_contentHolder.SetActive(true);
         LayoutRebuilder.MarkLayoutForRebuild(_contentHolder.GetComponent<RectTransform>());
         _contentHolder.GetComponent<CanvasGroup>().alpha = 1;
     }
 
 
 
-    private void CreateButton (PageButton pageButton)
+    private void GenerateButtons (Page page)
     {
-        switch (pageButton.targetId)
+        if (page.buttons.Count == 0)
         {
-            case GameManager.DeathPageId:
-                CreatePlayAgainButton();
-                break;
-
-            case GameManager.FinalPageId:
-                CreateMainMenuButton();
-                break;
-
-            default:
-                CreateNormalButton(pageButton);
-                break;
+            CreateMainMenuButton();
         }
-    }
-
-    private void CreateNormalButton(PageButton pageButton)
-    {
-        GameObject button = Instantiate(_buttonPrefab);
-
-        Page pageToLoad = GameManager.instance.FindPage(pageButton.targetId);
-
-        button.GetComponent<Button>().onClick.AddListener(
-            delegate
+        else
+        {
+            foreach (PageButton pageButton in page.buttons)
             {
-                GameManager.instance.LoadPage(pageToLoad);
-            });
+                switch (pageButton.targetId)
+                {
+                    case GameManager.DeathPageId:
+                        CreateButton("Начать заново", () =>
+                        {
+                            GameManager.instance.LoadPage(GameManager.instance.FindPage(GameManager.FirstPageId));
+                        });
+                        break;
 
-        button.transform.GetChild(0).GetComponent<TMP_Text>().text = pageButton.text;
+                    case GameManager.FinalPageId:
+                        CreateMainMenuButton();
+                        break;
 
-        buttons.Add(button);
-
-        button.transform.SetParent(_contentHolder.transform);
-    }
-
-    private void CreatePlayAgainButton()
-    {
-        GameObject button = Instantiate(_buttonPrefab);
-
-        Page pageToLoad = GameManager.instance.FindPage(GameManager.FirstPageId);
-
-        button.GetComponent<Button>().onClick.AddListener(
-            delegate
-            {
-                GameManager.instance.LoadPage(pageToLoad);
-            });
-
-        button.transform.GetChild(0).GetComponent<TMP_Text>().text = "Начать заново";
-
-        buttons.Add(button);
-
-        button.transform.SetParent(_contentHolder.transform);
+                    default:
+                        CreateButton(pageButton.text, () =>
+                        {
+                            GameManager.instance.LoadPage(GameManager.instance.FindPage(pageButton.targetId));
+                        });
+                        break;
+                }
+            }
+        } 
     }
 
     private void CreateMainMenuButton()
     {
+        CreateButton("В главное меню", () =>
+        {
+            PlayerPrefs.DeleteKey(GameManager.ProgressSaveId);
+            LoadScene(GameManager.MainMenuSceneId);
+        });
+    }
+
+    private void CreateButton(string buttonText, UnityAction onClickAction)
+    {
         GameObject button = Instantiate(_buttonPrefab);
 
-        button.GetComponent<Button>().onClick.AddListener(
-            delegate
-            {
-                PlayerPrefs.DeleteKey(GameManager.ProgressSaveId);
-                LoadScene(GameManager.MainMenuSceneId);
-            });
+        button.GetComponent<Button>().onClick.AddListener(onClickAction);
 
-        button.transform.GetChild(0).GetComponent<TMP_Text>().text = "В главное меню";
-
+        button.transform.GetChild(0).GetComponent<TMP_Text>().text = buttonText;
         buttons.Add(button);
-
         button.transform.SetParent(_contentHolder.transform);
     }
+
 
     private void ClearPage()
     {
@@ -175,7 +142,6 @@ public class GameUI : MonoBehaviour
         {
             Destroy(button);
         }
-
         buttons = new List<GameObject>();
     }
 

@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
 
 public class MainMenuUI : MonoBehaviour
 {
     [SerializeField] private Button _continueButton;
     [SerializeField] private GameObject _soundOnBtn, _soundOffBtn;
+
+    public static UnityAction OnAudioStateChanged;
 
     private void Start()
     {
@@ -16,17 +19,7 @@ public class MainMenuUI : MonoBehaviour
         else
             _continueButton.interactable = false;
 
-        if (PlayerPrefs.HasKey(GameManager.MusicValueSaveId))
-        {
-            if (PlayerPrefs.GetInt(GameManager.MusicValueSaveId) == 1)
-                SoundOn();
-            else
-                SoundOff();
-        }
-        else
-        {
-            SoundOn();
-        }
+        UpdateAudioButtonsState();
     }
 
     public void SoundOn()
@@ -35,6 +28,7 @@ public class MainMenuUI : MonoBehaviour
         _soundOnBtn.SetActive(true);
 
         PlayerPrefs.SetInt(GameManager.MusicValueSaveId, 1);
+        OnAudioStateChanged?.Invoke();
 
     }
 
@@ -44,8 +38,8 @@ public class MainMenuUI : MonoBehaviour
         _soundOnBtn.SetActive(false);
 
         PlayerPrefs.SetInt(GameManager.MusicValueSaveId, 0);
+        OnAudioStateChanged?.Invoke();
     }
-
 
     public void StartNewGame()
     {
@@ -63,4 +57,18 @@ public class MainMenuUI : MonoBehaviour
         SceneManager.LoadScene(id);
     }
 
+    private void UpdateAudioButtonsState()
+    {
+        if (PlayerPrefs.HasKey(GameManager.MusicValueSaveId))
+        {
+            if (PlayerPrefs.GetInt(GameManager.MusicValueSaveId) == 1)
+                SoundOn();
+            else
+                SoundOff();
+        }
+        else
+        {
+            SoundOn();
+        }
+    }
 }

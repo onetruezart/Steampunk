@@ -4,16 +4,16 @@ using UnityEngine;
 
 public static class ListExtencions
 {
-    public static void Shuffle<T>(this IList<T> ts)
+    public static void Shuffle<T>(this IList<T> list)
     {
-        var count = ts.Count;
-        var last = count - 1;
+        int count = list.Count;
+        int last = count - 1;
         for (var i = 0; i < last; ++i)
         {
-            var r = Random.Range(i, count);
-            var tmp = ts[i];
-            ts[i] = ts[r];
-            ts[r] = tmp;
+            int randIndex = Random.Range(i, count);
+            T temp = list[i];
+            list[i] = list[randIndex];
+            list[randIndex] = temp;
         }
     }
 }
